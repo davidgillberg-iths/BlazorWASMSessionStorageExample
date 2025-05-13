@@ -9,15 +9,17 @@
 
 <input @bind="inputName" placeholder="Skriv nytt namn" />
 <button @onclick="UpdateName">Spara namn</button>
+<button @onclick="ClearData">Radera namnet</button>
 
 @code {
     private string name = "";
     private string inputName = "";
+    private string placeholder = "Skriv nytt namn";
 
     protected override async Task OnInitializedAsync()
     {
         // Ladda namn från session storage om det finns, annars sätt ett standardvärde
-        name = await sessionStorage.GetItemAsync<string>("name") ?? "John Smith";
+        name = await sessionStorage.GetItemAsync<string>("name");
         inputName = name;
     }
 
@@ -25,5 +27,12 @@
     {
         name = inputName;
         await sessionStorage.SetItemAsync("name", name);
+    }
+
+    private async Task ClearData()
+    {
+        await sessionStorage.RemoveItemAsync("name");
+        name = "";
+        inputName = "";
     }
 }
