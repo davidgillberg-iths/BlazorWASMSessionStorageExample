@@ -1,0 +1,66 @@
+﻿@page "/profile"
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+<h3>Användarprofil</h3>
+
+<div>
+    <label>Förnamn: </label>
+    <input @bind="profile.FirstName" />
+</div>
+<div>
+    <label>Efternamn: </label>
+    <input @bind="profile.LastName" />
+</div>
+<div>
+    <label>E-post: </label>
+    <input @bind="profile.Email" />
+</div>
+
+<button @onclick="SaveProfile">Spara</button>
+<button @onclick="LoadProfile">Ladda</button>
+<button @onclick="ClearProfile">Töm</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p><em>@message</em></p>
+}
+
+@code {
+    private UserProfile profile = new();
+    private const string SessionKey = "userProfile";
+    private string message = "";
+
+    private async Task SaveProfile()
+    {
+        await sessionStorage.SetItemAsync(SessionKey, profile);
+        message = "Profil sparad i session.";
+    }
+
+    private async Task LoadProfile()
+    {
+        var stored = await sessionStorage.GetItemAsync<UserProfile>(SessionKey);
+        if (stored is not null)
+        {
+            profile = stored;
+            message = "Profil laddad från session.";
+        }
+        else
+        {
+            message = "Ingen profil hittades.";
+        }
+    }
+
+    private async Task ClearProfile()
+    {
+        await sessionStorage.RemoveItemAsync(SessionKey);
+        profile = new UserProfile(); // återställ
+        message = "Profilen har rensats.";
+    }
+
+    public class UserProfile
+    {
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string Email { get; set; } = "";
+    }
+}
